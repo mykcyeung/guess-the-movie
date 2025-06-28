@@ -289,7 +289,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-center gap-4 mt-4 flex-wrap">
             <button
               onClick={handleSubmit}
-              className={`${enabledBtnClasses} bg-blue-900 text-white hover:bg-blue-700 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] text-2xl px-10`}
+              className={`${enabledBtnClasses} bg-blue-900 text-white hover:bg-blue-700 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] text-2xl px-14`}
             >
               Go
             </button>
@@ -299,9 +299,9 @@ export default function Home() {
               disabled={skipsLeft <= 0}
               className={`${
                 skipsLeft > 0
-                  ? `border border-gray-700 text-gray-700 hover:bg-gray-200 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] ${enabledBtnClasses}`
-                  : "border border-gray-400 text-gray-400 cursor-not-allowed hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)]"
-              } rounded-full px-6 py-2`}
+                  ? `border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:text-white hover:border-none duration-500 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] text-lg ${enabledBtnClasses}`
+                  : "border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:text-white hover:border-none duration-500 cursor-not-allowed hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)]"
+              } rounded-full px-6 py-2 text-lg`}
             >
               Skip ({skipsLeft})
             </button>
@@ -311,8 +311,8 @@ export default function Home() {
               disabled={revealedHints >= rekognitionHints.length}
               className={`${
                 revealedHints < rekognitionHints.length
-                  ? `hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-green-700 text-green-700 hover:bg-green-100 ${enabledBtnClasses}`
-                  : "hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-gray-400 text-gray-400 cursor-not-allowed "
+                  ? `hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:border-none hover:text-white hover:scale-105 text-lg duration-500 hover:font-bold ${enabledBtnClasses}`
+                  : "hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:border-none hover:text-white hover:font-bold duration-500 cursor-not-allowed hover:scale-105 text-lg"
               } rounded-full px-6 py-2`}
             >
               Get Hint
@@ -334,7 +334,7 @@ export default function Home() {
 
           <button
             onClick={nextRound}
-            className="mt-6 px-6 py-2 bg-yellow-400 rounded-full font-bold text-blue-900 hover:scale-105 transition duration-300 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)]"
+            className="mt-6 px-6 py-2 bg-yellow-500 rounded-full font-bold text-blue-900 hover:scale-105 transition duration-300 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)]"
           >
             Next
           </button>
@@ -354,7 +354,7 @@ export default function Home() {
         </>
       )}
 
-      <div className="mt-10">
+      <div className="mt-20">
         <Link href="/about">
          <button className="font-monoton text-4xl text-blue-800 hover:scale-105 duration-500">About</button>
         </Link>
