@@ -1,103 +1,370 @@
+"use client";
+import { useState, useEffect, useRef } from "react";
+import { fetchRandomMoviePoster } from "@/utils/fetchPoster";
 import Image from "next/image";
+import Link from "next/link";
+
+type Label = {
+  Name: string;
+  Confidence: number;
+};
+
+const ROUND_TIME = 20;
+const MAX_SKIPS = 3;
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [poster, setPoster] = useState<string | null>(null);
+  const [yearHint, setYearHint] = useState<string | null>(null);
+  const [title, setTitle] = useState<string | null>(null);
+  const [rekognitionHints, setRekognitionHints] = useState<Label[]>([]);
+  const [revealedHints, setRevealedHints] = useState<number>(0);
+  const [blurred, setBlurred] = useState(true);
+  const [guess, setGuess] = useState("");
+  const [score, setScore] = useState<number>(10);
+  const [status, setStatus] = useState<
+    "playing" | "correct" | "wrong" | "gameover" | "showAnswer"
+  >("playing");
+  const [usedTitles, setUsedTitles] = useState<string[]>([]);
+  const [timeLeft, setTimeLeft] = useState(ROUND_TIME);
+  const [skipsLeft, setSkipsLeft] = useState(MAX_SKIPS);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const stopwords = ["the", "a", "an", "and", "of", "in", "on", "at"];
+  const blockedLabels = [
+    "Poster",
+    "Advertisement",
+    "Flyer",
+    "Brochure",
+    "Paper",
+    "Text",
+    "Document",
+    "Label",
+    "Graphics",
+    "Font",
+    "Logo",
+    "Banner",
+    "Person",
+    "People",
+    "Face",
+    "Head",
+    "Clothing",
+    "Publication",
+    "Nature",
+    "Adult",
+    "Book",
+    "Banned",
+    "Male",
+    "Female",
+    "Man",
+    "Woman",
+    "Photography",
+    "Ban",
+  ];
+
+  const cleanText = (text: string) =>
+    text
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((word) => word && !stopwords.includes(word));
+
+  useEffect(() => {
+    if (score <= 0 && status !== "gameover") {
+      setStatus("gameover");
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+  }, [score, status]);
+
+  useEffect(() => {
+    if (status !== "playing") {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+    timerRef.current = setInterval(() => {
+      setTimeLeft((t) => {
+        if (t <= 1) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          handleTimeOut();
+          return ROUND_TIME;
+        }
+        return t - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [status]);
+
+  const loadPoster = async () => {
+    setStatus("playing");
+    setBlurred(true);
+    setGuess("");
+    setRevealedHints(0);
+    setRekognitionHints([]);
+    setTimeLeft(ROUND_TIME);
+
+    let movie = null;
+    const maxTries = 20;
+    let tries = 0;
+
+    while (!movie && tries < maxTries) {
+      const candidate = await fetchRandomMoviePoster();
+      if (candidate && !usedTitles.includes(candidate.title.toLowerCase())) {
+        movie = candidate;
+        setUsedTitles((prev) => [...prev, candidate.title.toLowerCase()]);
+      }
+      tries++;
+    }
+
+    if (!movie) {
+      alert("Couldn't find a new movie. Please refresh.");
+      return;
+    }
+
+    setPoster(movie.posterUrl);
+    setYearHint(movie.year);
+    setTitle(movie.title);
+
+    const imgRes = await fetch(movie.posterUrl);
+    const blob = await imgRes.blob();
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = (reader.result as string).split(",")[1];
+      const rekogRes = await fetch(process.env.NEXT_PUBLIC_API_ENDPOINT!, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64String }),
+      });
+      const rekogData = await rekogRes.json();
+      const usefulLabels = (rekogData.labels || [])
+        .filter(
+          (label: Label) =>
+            label.Confidence > 80 && !blockedLabels.includes(label.Name)
+        )
+        .slice(0, 10);
+      setRekognitionHints(usefulLabels);
+    };
+
+    reader.readAsDataURL(blob);
+  };
+
+  useEffect(() => {
+    loadPoster();
+  }, []);
+
+  const handleTimeOut = () => {
+    setScore((prev) => Math.max(0, prev - 5));
+    setBlurred(false);
+    setStatus("showAnswer");
+  };
+
+  const handleSubmit = () => {
+    if (!title) return;
+
+    const guessWords = cleanText(guess);
+    const titleWords = cleanText(title);
+
+    const guessSet = new Set(guessWords);
+    const titleSet = new Set(titleWords);
+
+    const isExactMatch =
+      guessSet.size === titleSet.size &&
+      [...guessSet].every((word) => titleSet.has(word));
+    const hasPartialMatch = guessWords.some((word) => titleSet.has(word));
+
+    if (isExactMatch || hasPartialMatch) {
+      setScore((prev) => prev + (isExactMatch ? 10 : 5));
+      setStatus("correct");
+      setBlurred(false);
+    } else {
+      setScore((prev) => Math.max(0, prev - 5));
+      setStatus("wrong");
+      setBlurred(false);
+    }
+  };
+
+  const getMoreHint = () => {
+    if (revealedHints < rekognitionHints.length) {
+      setRevealedHints((prev) => prev + 1);
+      setScore((prev) => Math.max(0, prev - 1));
+    }
+  };
+
+  const handleSkip = () => {
+    if (skipsLeft <= 0) return;
+    setSkipsLeft((prev) => prev - 1);
+    handleTimeOut();
+  };
+
+  const nextRound = () => {
+    setStatus("playing");
+    setBlurred(true);
+    setGuess("");
+    setRevealedHints(0);
+    setRekognitionHints([]);
+    setTimeLeft(ROUND_TIME);
+    loadPoster();
+  };
+
+  const restartGame = () => {
+    setScore(10);
+    setSkipsLeft(MAX_SKIPS);
+    setUsedTitles([]);
+    setStatus("playing");
+    setBlurred(true);
+    setGuess("");
+    setRevealedHints(0);
+    setRekognitionHints([]);
+    setTimeLeft(ROUND_TIME);
+    loadPoster();
+  };
+
+  // Shared classes for buttons when enabled
+  const enabledBtnClasses =
+    "px-6 py-2 rounded-full transition duration-300 transform hover:scale-105 hover:font-bold";
+  
+  const getYear = new Date().getFullYear()
+
+  
+
+  return (
+    <main className="p-6 max-w-[50%] bg-[#c8a116] mx-auto text-center space-y-6 font-gabarito min-h-screen my-12 rounded-4xl shadow-[0_0_20px_6px_rgba(255,255,0,0.4)]">
+      <h1 className="text-2xl sm:text-5xl lg:text-8xl font-medium text-blue-900 font-monoton">
+        Guess the Movie
+      </h1>
+
+      <div className="flex justify-evenly w-full">
+        <div>
+          <p className="md:text-xl text-md text-gray-700 font-bold">Score</p>
+          <span className="font-bold text-4xl md:text-5xl">{score}</span>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div>
+          <p className="md:text-xl text-md text-gray-700 font-bold">Time Left</p>
+          <span className="font-bold text-4xl md:text-5xl">{timeLeft}s</span>
+        </div>
+      </div>
+
+      {poster && (
+        <div
+          className={`relative mx-auto mt-6 w-full max-w-[400px] transition-all duration-500 ${
+            blurred ? "filter blur-sm" : ""
+          }`}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <div className="relative w-full" style={{ paddingTop: "150%" }}>
+            <Image
+              src={poster}
+              alt="Movie poster"
+              fill
+              className="object-cover rounded-xl"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      )}
+
+      {yearHint && <p className="mt-4 text-xs md:text-lg">Released Year: {yearHint}</p>}
+
+      {revealedHints > 0 && (
+        <div className="mt-4 p-3 rounded max-h-32 overflow-auto text-left">
+          {rekognitionHints.slice(0, revealedHints).map((label) => (
+            <p key={label.Name}>{label.Name}</p>
+          ))}
+        </div>
+      )}
+
+      {status === "playing" && (
+        <>
+          <input
+            type="text"
+            className="border border-gray-300 rounded-full p-2 w-full mt-4 text-center text-lg"
+            placeholder="Enter your guess"
+            value={guess}
+            onChange={(e) => setGuess(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            autoFocus
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+          <div className="flex flex-col md:flex-row justify-center gap-4 mt-4 flex-wrap">
+            <button
+              onClick={handleSubmit}
+              className={`${enabledBtnClasses} bg-blue-900 text-white hover:bg-blue-700 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] text-2xl px-10`}
+            >
+              Go
+            </button>
+
+            <button
+              onClick={handleSkip}
+              disabled={skipsLeft <= 0}
+              className={`${
+                skipsLeft > 0
+                  ? `border border-gray-700 text-gray-700 hover:bg-gray-200 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] ${enabledBtnClasses}`
+                  : "border border-gray-400 text-gray-400 cursor-not-allowed hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)]"
+              } rounded-full px-6 py-2`}
+            >
+              Skip ({skipsLeft})
+            </button>
+
+            <button
+              onClick={getMoreHint}
+              disabled={revealedHints >= rekognitionHints.length}
+              className={`${
+                revealedHints < rekognitionHints.length
+                  ? `hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-green-700 text-green-700 hover:bg-green-100 ${enabledBtnClasses}`
+                  : "hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-gray-400 text-gray-400 cursor-not-allowed "
+              } rounded-full px-6 py-2`}
+            >
+              Get Hint
+            </button>
+          </div>
+        </>
+      )}
+
+      {(status === "correct" || status === "wrong" || status === "showAnswer") && (
+        <>
+          <p className="text-sm md:text-xl font-bold mt-4">
+            {status === "correct"
+              ? "Correct! It's"
+              : status === "wrong"
+              ? "Oops! It's:"
+              : "Time's up! It's:"}
+          </p>
+          <p className="text-3xl md:text-6xl font-bold mt-2">{title}</p>
+
+          <button
+            onClick={nextRound}
+            className="mt-6 px-6 py-2 bg-yellow-400 rounded-full font-bold text-blue-900 hover:scale-105 transition duration-300 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)]"
+          >
+            Next
+          </button>
+        </>
+      )}
+
+      {status === "gameover" && (
+        <>
+          <p className="text-sm md:text-xl font-bold mt-4">Game Over! It's</p>
+          <p className="text-3xl md:text-6xl font-bold mt-2 md:text-6xl">{title}</p>
+          <button
+            onClick={restartGame}
+            className="mt-6 px-6 py-2 bg-red-700 rounded-full font-bold text-white hover:scale-105 transition duration-300 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] text-2xl"
+          >
+            Restart Game
+          </button>
+        </>
+      )}
+
+      <div className="mt-10">
+        <Link href="/about">
+         <button className="font-monoton text-4xl text-blue-800 hover:scale-105 duration-500">About</button>
+        </Link>
+      </div>
+
+      <div>
+        <p className="text-[10px] lg:text-[14px]">
+          © {getYear} Guess the Movie. All rights reserved.
+        </p>
+      </div>
+    </main>
   );
 }
