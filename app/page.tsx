@@ -230,8 +230,8 @@ export default function Home() {
   
 
   return (
-    <main className="p-6 max-w-[50%] bg-[#c8a116] mx-auto text-center space-y-6 font-gabarito min-h-screen my-12 rounded-4xl shadow-[0_0_20px_6px_rgba(255,255,0,0.4)]">
-      <h1 className="text-2xl sm:text-5xl lg:text-8xl font-medium text-blue-900 font-monoton">
+    <main className="p-6 max-w-[70%] md:max-w-[50%] bg-[#c8a116] mx-auto text-center space-y-6 font-gabarito min-h-screen my-12 rounded-4xl shadow-[0_0_20px_6px_rgba(255,255,0,0.4)]">
+      <h1 className="text-2xl sm:text-4xl lg:text-8xl font-medium text-blue-900 font-monoton">
         Guess the Movie
       </h1>
 
@@ -289,7 +289,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-center gap-4 mt-4 flex-wrap">
             <button
               onClick={handleSubmit}
-              className={`${enabledBtnClasses} bg-blue-900 text-white hover:bg-blue-700 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] text-2xl px-14`}
+              className={`${enabledBtnClasses} bg-blue-900 text-white hover:bg-blue-700 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] md:text-2xl px-14`}
             >
               Go
             </button>
@@ -299,9 +299,9 @@ export default function Home() {
               disabled={skipsLeft <= 0}
               className={`${
                 skipsLeft > 0
-                  ? `border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:text-white hover:border-none duration-500 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] text-lg ${enabledBtnClasses}`
+                  ? `border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:text-white hover:border-none duration-500 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] md:text-lg ${enabledBtnClasses}`
                   : "border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:text-white hover:border-none duration-500 cursor-not-allowed hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)]"
-              } rounded-full px-6 py-2 text-lg`}
+              } rounded-full px-6 py-2 md:text-lg`}
             >
               Skip ({skipsLeft})
             </button>
@@ -311,8 +311,8 @@ export default function Home() {
               disabled={revealedHints >= rekognitionHints.length}
               className={`${
                 revealedHints < rekognitionHints.length
-                  ? `hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:border-none hover:text-white hover:scale-105 text-lg duration-500 hover:font-bold ${enabledBtnClasses}`
-                  : "hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:border-none hover:text-white hover:font-bold duration-500 cursor-not-allowed hover:scale-105 text-lg"
+                  ? `hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:border-none hover:text-white hover:scale-105 md:text-lg duration-500 hover:font-bold ${enabledBtnClasses}`
+                  : "hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] border border-blue-900 text-blue-900 hover:bg-yellow-500 hover:border-none hover:text-white hover:font-bold duration-500 cursor-not-allowed hover:scale-105 md:text-lg"
               } rounded-full px-6 py-2`}
             >
               Get Hint
@@ -347,7 +347,7 @@ export default function Home() {
           <p className="text-3xl md:text-6xl font-bold mt-2 md:text-6xl">{title}</p>
           <button
             onClick={restartGame}
-            className="mt-6 px-6 py-2 bg-red-700 rounded-full font-bold text-white hover:scale-105 transition duration-300 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] text-2xl"
+            className="mt-6 px-6 py-2 bg-red-700 rounded-full font-bold text-white hover:scale-105 transition duration-300 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] md:text-lg"
           >
             Restart Game
           </button>
@@ -356,7 +356,7 @@ export default function Home() {
 
       <div className="mt-20">
         <Link href="/about">
-         <button className="font-monoton text-4xl text-blue-800 hover:scale-105 duration-500">About</button>
+         <button className="font-monoton text-2xl sm:text-3xl text-blue-800 hover:scale-105 duration-500">About</button>
         </Link>
       </div>
 
