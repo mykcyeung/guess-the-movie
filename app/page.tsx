@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { fetchRandomMoviePoster } from "@/utils/fetchPoster";
 import Image from "next/image";
 import Link from "next/link";
+import { contact } from "@/utils/techImage";
 
 type Label = {
   Name: string;
@@ -231,7 +232,7 @@ export default function Home() {
 
   return (
     <main className="p-6 max-w-[70%] md:max-w-[50%] bg-[#c8a116] mx-auto text-center space-y-6 font-gabarito min-h-screen my-12 rounded-4xl shadow-[0_0_20px_6px_rgba(255,255,0,0.4)]">
-      <h1 className="text-2xl sm:text-4xl lg:text-8xl font-medium text-blue-900 font-monoton">
+      <h1 className="text-2xl sm:text-4xl lg:text-7xl font-medium text-blue-900 font-monoton">
         Guess the Movie
       </h1>
 
@@ -286,7 +287,7 @@ export default function Home() {
             autoFocus
           />
 
-          <div className="flex flex-col md:flex-row justify-center gap-4 mt-4 flex-wrap">
+          <div className="flex flex-col md:flex-row justify-center gap-1.5 sm:gap-4 mt-2 sm:mt-4 flex-wrap">
             <button
               onClick={handleSubmit}
               className={`${enabledBtnClasses} bg-blue-900 text-white hover:bg-blue-700 hover:shadow-[0_0_6px_1px_rgba(255,255,0,0.4)] md:text-2xl px-14`}
@@ -354,17 +355,35 @@ export default function Home() {
         </>
       )}
 
-      <div className="mt-20">
+      <div className="md:mt-12 mt-4">
         <Link href="/about">
          <button className="font-monoton text-2xl sm:text-3xl text-blue-800 hover:scale-105 duration-500">About</button>
         </Link>
       </div>
 
-      <div>
-        <p className="text-[10px] lg:text-[14px]">
-          © {getYear} Guess the Movie. All rights reserved.
-        </p>
+      {/* FOOTER */}
+      <div className='md:mt-8 mt-4'>
+        <div className='flex justify-center gap-14'>
+          {contact.map(({ name, icon, link }) => (
+            <Link key={name} href={link} target="">
+              <Image
+                src={icon}
+                alt={name}
+                width={25}
+                height={25}
+                
+              />
+            </Link>
+          ))}
+        </div>
+        <div>
+          <p className="text-[10px] lg:text-[14px] mt-4">
+            © {getYear} Guess the Movie. All rights reserved.
+          </p>
+        </div>
       </div>
+
+ 
     </main>
   );
 }
