@@ -6,7 +6,7 @@ import React from 'react'
 const About = () => {
   const getYear = new Date().getFullYear()
   return (
-    <div className='p-6 max-w-[70%] md:max-w-[50%]  mx-auto text-center space-y-6 font-gabarito min-h-screen my-12'>
+    <div className='p-6 max-w-[80%] md:max-w-[50%]  mx-auto text-center space-y-6 font-gabarito min-h-screen my-12'>
       <h1 className='text-4xl sm:text-5xl lg:text-7xl font-medium text-[#c8a116] font-monoton'>About this game</h1>
 
       {/* STACK SECTION */}
@@ -67,7 +67,7 @@ const About = () => {
 
 
         <div>
-          <Link href="/">
+          <Link href="/game">
             <button className='font-monoton text-2xl sm:text-3xl text-[#c8a116] hover:scale-105 duration-500 mt-16'>Back to the Game</button>
           </Link>
         </div>
