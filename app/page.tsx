@@ -10,7 +10,7 @@ const page = () => {
     <h2 className="font-monoton text-3xl sm:text-6xl text-blue-900">Welcome!</h2>
     
     <p className="sm:text-2xl text-lg mt-12 underline">Here’s how scoring works:</p>
-    <p className="sm:text-lg text-md mt-4">You will only have <span className='font-bold text-4xl'>20</span> seconds for each guess</p>
+    <p className="sm:text-lg text-sm mt-4">You've got <span className='font-bold text-4xl'>20</span> seconds to make each guess.</p>
 
     <div className="text-lg sm:text-2xl mt-4 font-bold space-y-2 ">
       <p>Starting Score: <span className="text-4xl">10</span> points</p>
