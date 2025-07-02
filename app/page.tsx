@@ -9,17 +9,18 @@ const page = () => {
     
     <h2 className="font-monoton text-3xl sm:text-6xl text-blue-900">Welcome!</h2>
     
-    <p className="sm:text-lg text-md mt-12 underline">Here’s how scoring works:</p>
+    <p className="sm:text-2xl text-lg mt-12 underline">Here’s how scoring works:</p>
+    <p className="sm:text-lg text-md mt-4">You will only have <span className='font-bold text-4xl'>20</span> seconds for each guess</p>
 
     <div className="text-lg sm:text-2xl mt-4 font-bold space-y-2 ">
       <p>Starting Score: <span className="text-4xl">10</span> points</p>
       <p>Correct Answer: <span className="text-4xl">+10</span></p>
       <p>Partially Correct: <span className="text-4xl">+5</span></p>
-      <p>Time’s Up: <span className="text-4xl">−5</span></p>
+      <p>Time’s Up: <span className="text-4xl">−10</span></p>
     </div>
 
     <p className="sm:text-lg text-md mt-4 ">
-      Hit <span className="font-bold text-xl">Enter</span> to submit your guess!
+      Hit <span className="font-bold text-xl">Enter</span> guess it or skip it!
     </p>
 
     <Link href="/game">

@@ -161,6 +161,7 @@ export default function Home() {
   // }, []);
 
   const handleTimeOut = () => {
+    // if (status !== "playing") return;
     setScore((prev) => Math.max(0, prev - 5));
     setBlurred(false);
     setStatus("showAnswer");
