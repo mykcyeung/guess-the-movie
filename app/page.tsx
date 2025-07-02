@@ -5,12 +5,12 @@ const page = () => {
   return (
 
         <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center">
-  <div className="bg-[#c8a116] text-white p-8 rounded-2xl w-full text-center max-w-[80%] sm:max-w-lg shadow-[0_0_20px_6px_rgba(255,255,0,0.3)] flex flex-col items-center">
+  <div className="bg-[#c8a116] text-white p-6 rounded-2xl w-full text-center max-w-[80%] sm:max-w-lg shadow-[0_0_20px_6px_rgba(255,255,0,0.3)] flex flex-col items-center">
     
     <h2 className="font-monoton text-3xl sm:text-6xl text-blue-900">Welcome!</h2>
     
     <p className="sm:text-2xl text-lg mt-12 underline">Here’s how scoring works:</p>
-    <p className="sm:text-lg text-sm mt-4">You've got <span className='font-bold text-4xl'>20</span> seconds to make each guess.</p>
+    <p className="sm:text-lg text-sm mt-4">You've got <span className='font-bold text-4xl'>20</span>s to make each guess.</p>
 
     <div className="text-lg sm:text-2xl mt-4 font-bold space-y-2 ">
       <p>Starting Score: <span className="text-4xl">10</span> points</p>
