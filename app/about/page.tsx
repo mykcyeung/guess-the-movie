@@ -14,7 +14,7 @@ const About = () => {
 
         {/* FRONTEND */}
         <div className='mt-12 flex flex-col justify-center gap-5 bg-[#383838b3] px-8 py-8 rounded-4xl shadow-[0_0_20px_6px_rgba(255,255,255,0.1)]'>
-  <div className='text-2xl md:text-4xl font-bold flex justify-center'>Frontend Stacks</div>
+  <div className='text-2xl md:text-4xl font-bold flex justify-center'>Frontend Stack</div>
 
   {/* Centered grid wrapper */}
   <div className="flex justify-center">
@@ -41,7 +41,7 @@ const About = () => {
 
         {/* BACKEND */}
         <div className='mt-12 flex flex-col justify-center gap-5 bg-[#383838b3] px-8 py-8 rounded-4xl shadow-[0_0_20px_6px_rgba(255,255,255,0.1)]'>
-        <div className='text-2xl md:text-4xl font-bold flex justify-center'>Backend Stacks</div>
+        <div className='text-2xl md:text-4xl font-bold flex justify-center'>Backend Stack</div>
 
         {/* Wrapper to center the grid */}
         <div className="flex justify-center">
